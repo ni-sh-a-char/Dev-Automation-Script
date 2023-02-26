@@ -1,6 +1,6 @@
 #! /bin/bash
 
-python /home/user/VOICE.py
+#python /home/user/VOICE.py
 
 ### Git automation script for automating git clone, push and pull ###
 ### Created by PIYUSH-MISHRA-00 ###
@@ -8,165 +8,183 @@ python /home/user/VOICE.py
 while :
 do
 echo
-echo "Which Git operation you want to perform ?"
+echo "Which operation you want to perform ?"
 echo
-echo "GitHub username: $username"
-echo "Local repository name: $local_repo"
-echo "Remote repository name: $remote"
-echo "The default branch you want to work with: $branch"
-echo "GPG key value: $GPG"
-echo
-echo -e "\t(0) Configure (configures the script for continuous uses)"
-echo -e "\t(1) Clone"
-echo -e "\t(2) Pull"
-echo -e "\t(3) Push"
-echo -e "\t(4) Generate Patch"
-echo -e "\t(5) Send Email"
-echo -e "\t(6) VOICE"
-echo -e "\t(7) Exit"
-echo -n "Enter your choice [0-7]: "
+echo -e "\t(0) VOICE"
+echo -e "\t(1) GitHub"
+echo -e "\t(2) Docker"
+echo -n "Enter your choice [0-2]: "
+read operation
+export operation
 
-read choice
+case $operation in
 
-case $choice in
-
- 0) echo "Enter the values for future use of the script..."
-    echo
-    echo "Enter GitHub username: "
-    read username
-    export username
-    echo "Your username is: $username"
-    echo
-    echo "Local repository name: "
-    read local_repo
-    export local_repo
-    echo "Your local repository name is: $local_repo"
-    echo 
-    echo "Remote repository name: "
-    read remote
-    export remote
-    echo "Remote repository name is: $remote"
-    echo
-    echo "The default branch you want to work with: "
-    read branch
-    export branch
-    echo "The default branch you want to work with: $branch"
-    echo
-    echo "GPG key value is: $GPG"
-    echo
-    echo "GPG key id for signed commits(leave blank if you don't want signed commits)"
-    read GPG
-    export GPG
-    echo "GPG key value is: $GPG"
-    echo
+ 0) echo "Initializing VOICE"
+      python3 VOICE.py
+      esac
+      done
    ;;
 
- 1) echo "Cloning from GitHub"
-    echo
-    echo "Enter the repository https url: "
-    read clone_url
-    git clone $echo $clone_url;;
+   1) echo "Which Git operation you want to perform ?"
+      echo
+      echo "GitHub username: $username"
+      echo "Local repository name: $local_repo"
+      echo "Remote repository name: $remote"
+      echo "The default branch you want to work with: $branch"
+      echo "GPG key value: $GPG"
+      echo
+      echo -e "\t(0) Configure (configures the script for continuous uses)"
+      echo -e "\t(1) Clone"
+      echo -e "\t(2) Pull"
+      echo -e "\t(3) Push"
+      echo -e "\t(4) Generate Patch"
+      echo -e "\t(5) Send Email"
+      echo -e "\t(6) Exit"
+      echo -n "Enter your choice [0-6]: "
 
- 2) echo "Pulling from GitHub"
-    echo
-    echo "Enter the repository https url: "
-    read pull_url
-    echo
-    echo $pull_url
-    echo
-    while :
-    do
-    echo "Which type of Git Pull you want ?"
-    echo -e "\t(1) Merge (the default strategy)"
-    echo -e "\t(2) Rebase"
-    echo -e "\t(3) Fast-forward only"
-    echo -e "\t(4) Return to main menu"
-    echo -n "Enter your choice [1-4]: "
-    read pull_choice
-    case $pull_choice in
-     1) 
-     git config pull.rebase false 
-     git pull $echo "$pull_url";;
-     2) 
-     git config pull.rebase true 
-     git pull $echo "$pull_url";;
-     3) 
-     git config pull.ff only 
-     git pull $echo "$pull_url";;
-     4)
-     break
-     ;;
-        *) 
-        echo "Invalid operation"
-        ;;
-    esac
-    done
-    ;;
+      read choice
 
- 3) echo "Pushing to GitHub" 
-    declare -A map
+      case $choice in
+      0) echo "Enter the values for future use of the script..."
+      echo
+      echo "Enter GitHub username: "
+      read username
+      export username
+      echo "Your username is: $username"
+      echo
+      echo "Local repository name: "
+      read local_repo
+      export local_repo
+      echo "Your local repository name is: $local_repo"
+      echo 
+      echo "Remote repository name: "
+      read remote
+      export remote
+      echo "Remote repository name is: $remote"
+      echo
+      echo "The default branch you want to work with: "
+      read branch
+      export branch
+      echo "The default branch you want to work with: $branch"
+      echo
+      echo "GPG key value is: $GPG"
+      echo
+      echo "GPG key id for signed commits(leave blank if you don't want signed commits)"
+      read GPG
+      export GPG
+      echo "GPG key value is: $GPG"
+      echo
+      ;;
 
-    map[$echo"$local_repo"] = $echo"$remote"
+      1) echo "Cloning from GitHub"
+         echo
+         echo "Enter the repository https url: "
+         read clone_url
+         git clone $echo $clone_url;;
 
-    git config --global user.name $echo"$username" 
-    git config --global user.signingkey $echo$GPG 
-    git init
-    git add .
-    echo "Enter Commit message: "
-    read message
-    git commit -m $echo "$message"
-    echo "Enter Tag name: (Press enter if you want to skip the tag name)"
-    read tag
-    echo "Enter Tag message: (Press enter if you want to skip the tag message)"
-    read tag_message
-    git tag -a $echo$tag -m "$echo$tag_message"
-    git tag -n
+      2) echo "Pulling from GitHub"
+         echo
+         echo "Enter the repository https url: "
+         read pull_url
+         echo
+         echo $pull_url
+         echo
+         while :
+         do
+         echo "Which type of Git Pull you want ?"
+         echo -e "\t(1) Merge (the default strategy)"
+         echo -e "\t(2) Rebase"
+         echo -e "\t(3) Fast-forward only"
+         echo -e "\t(4) Return to main menu"
+         echo -n "Enter your choice [1-4]: "
+         read pull_choice
+         case $pull_choice in
+         1) 
+         git config pull.rebase false 
+         git pull $echo "$pull_url";;
+         2) 
+         git config pull.rebase true 
+         git pull $echo "$pull_url";;
+         3) 
+         git config pull.ff only 
+         git pull $echo "$pull_url";;
+         4)
+         break
+         ;;
+            *) 
+            echo "Invalid operation"
+            ;;
+         esac
+         done
+         ;;
 
-    for i in "${!map[@]}"
-      do
-      git remote add $i https://github.com/$echo$username/${map[$i]}.git 
-      git push -u $i $echo$branch 
-      done
+      3) echo "Pushing to GitHub" 
+         declare -A map
 
-      git push;;
+         map[$echo"$local_repo"] = $echo"$remote"
 
+         git config --global user.name $echo"$username" 
+         git config --global user.signingkey $echo$GPG 
+         git init
+         git add .
+         echo "Enter Commit message: "
+         read message
+         git commit -m $echo "$message"
+         echo "Enter Tag name: (Press enter if you want to skip the tag name)"
+         read tag
+         echo "Enter Tag message: (Press enter if you want to skip the tag message)"
+         read tag_message
+         git tag -a $echo$tag -m "$echo$tag_message"
+         git tag -n
 
- 4) echo "Generate Patch"
-    echo "Enter file 1 and file 2"
-    echo "Enter file 1"
-    read fileone
-    export fileone
-    echo "Enter file2"
-    read filetwo
-    export filetwo
-    diff $echo$fileone $echo$filetwo -staged
-    echo "Enter the file name created using diff"
-    read file_diff
-    export file_diff
-    git patch $file_diff
-   ;; 
+         for i in "${!map[@]}"
+            do
+            git remote add $i https://github.com/$echo$username/${map[$i]}.git 
+            git push -u $i $echo$branch 
+            done
 
- 5) echo "Send Email"
-    echo "Enter the receiver... ??"
-    read receiver
-    echo "File you want to mail ??"
-    read filename 
-    git send-email --to=$receiver $filename
-    ;;
-
- 6) echo "Initializing VOICE"
-    chmod u+x VOICE.py
-    python VOICE.py
-    ;;
-    
-
- 7) echo "Quitting..."
-    exit
-    ;;
+            git push;;
 
 
- *) echo "Invalid operation"
-    ;;
+      4) echo "Generate Patch"
+         echo "Enter file 1 and file 2"
+         echo "Enter file 1"
+         read fileone
+         export fileone
+         echo "Enter file2"
+         read filetwo
+         export filetwo
+         diff $echo$fileone $echo$filetwo -staged
+         echo "Enter the file name created using diff"
+         read file_diff
+         export file_diff
+         git patch $file_diff
+         ;; 
 
- esac
- done   
+      5) echo "Send Email"
+         echo "Enter the receiver... ??"
+         read receiver
+         echo "File you want to mail ??"
+         read filename 
+         git send-email --to=$receiver $filename
+         ;;
+         
+
+      6) echo "Quitting..."
+         exit
+         ;;
+
+
+      *) echo "Invalid operation"
+         ;;
+
+         esac
+         done
+      ;;
+   
+   2) echo "Docker"
+
+
+
+
+      
