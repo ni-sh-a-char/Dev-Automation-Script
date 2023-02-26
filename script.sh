@@ -14,6 +14,7 @@ echo -e "\t(0) VOICE"
 echo -e "\t(1) GitHub"
 echo -e "\t(2) Docker"
 echo -n "Enter your choice [0-2]: "
+
 read operation
 export operation
 
