@@ -121,7 +121,52 @@ case $operation in
       done
       ;;
 
-   3) echo "Pushing to GitHub" 
+   3) echo "Pushing to GitHub"
+      echo
+      while :
+      do
+      echo "Which type of Git Push you want ?"
+      echo -e "\t(0) LFS (if git lfs is already installed into the system)"
+      echo -e "\t(1) Normal"
+      echo -e "\t(2) Return to main menu"
+      echo -n "Enter your choice [0-2]: "
+      read push_choice
+      case $push_choice in
+      0) 
+      declare -A map
+
+      map[$echo"$local_repo"] = $echo"$remote"
+
+      git config --global user.name $echo"$username" 
+      git config --global user.signingkey $echo$GPG 
+      git init
+      git lfs install
+      echo
+      echo "Enter the file extension without dot"
+      read extension
+      export extension
+      git lfs track "*.$extension"
+      git add .gitattributes
+      git add .
+      echo "Enter Commit message: "
+      read message
+      git commit -m $echo "$message"
+      echo "Enter Tag name: (Press enter if you want to skip the tag name)"
+      read tag
+      echo "Enter Tag message: (Press enter if you want to skip the tag message)"
+      read tag_message
+      git tag -a $echo$tag -m "$echo$tag_message"
+      git tag -n
+
+      for i in "${!map[@]}"
+         do
+         git remote add $i https://github.com/$echo$username/${map[$i]}.git 
+         git push -u $i $echo$branch 
+         done
+
+         git push;;
+
+      1) 
       declare -A map
 
       map[$echo"$local_repo"] = $echo"$remote"
@@ -147,6 +192,16 @@ case $operation in
          done
 
          git push;;
+
+      2)
+      break
+      ;;
+         *) 
+         echo "Invalid operation"
+         ;;
+      esac
+      done
+      ;; 
 
 
    4) echo "Generate Patch"
