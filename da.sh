@@ -1,7 +1,5 @@
 #! /bin/bash
 
-#python /home/user/VOICE.py
-
 ### Dev Automation Script for automating git and docker ###
 ### Created by PIYUSH-MISHRA-00 ###
 
