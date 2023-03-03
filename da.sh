@@ -237,8 +237,55 @@ case $operation in
    esac
    done
    ;;
-2) echo "Docker"
+
+2) while :
+   do
+   echo "Which type of Docker operation you want to perform ?"
+   echo -e "\t(0) Login to the Docker Hub Repository"
+   echo -e "\t(1) Pull an image from Docker Hub"
+   echo -e "\t(2) Build an image from a specified docker file"
+   echo -e "\t(3) Run a Docker Image"
+   echo -e "\t(4) Access the running container"
+   echo -e "\t(5) Remove a Docker Container"
+   echo -e "\t(6) Remove an Docker Image"
+   echo -e "\t(7) Push an image to the docker hub repository"
+   echo -e "\t(8) Return to main menu"
+   echo -n "Enter your choice [0-8]: "
+   read dchoice
+   case $dchoice in
+   0)
+   docker login
    ;;
+   1)
+   docker login
+   ;;
+   2)
+   docker login
+   ;;
+   3)
+   docker login
+   ;;
+   4)
+   docker login
+   ;;
+   5)
+   docker login
+   ;;
+   6)
+   docker login
+   ;;
+   7)
+   docker login
+   ;;
+   8)
+      break
+      ;;
+         *) 
+         echo "Invalid operation"
+         ;;
+      esac
+      done
+      ;; 
 
 3) echo "Quitting..."
       exit
@@ -250,7 +297,3 @@ case $operation in
 esac
 done
 ;;
-
-
-
-      
