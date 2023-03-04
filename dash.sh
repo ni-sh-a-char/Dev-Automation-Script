@@ -242,40 +242,99 @@ case $operation in
    do
    echo "Which type of Docker operation you want to perform ?"
    echo -e "\t(0) Login to the Docker Hub Repository"
-   echo -e "\t(1) Pull an image from Docker Hub"
-   echo -e "\t(2) Build an image from a specified docker file"
+   echo -e "\t(1) Pull an Image from Docker Hub"
+   echo -e "\t(2) Build an Image"
    echo -e "\t(3) Run a Docker Image"
    echo -e "\t(4) Access the running container"
    echo -e "\t(5) Remove a Docker Container"
-   echo -e "\t(6) Remove an Docker Image"
-   echo -e "\t(7) Push an image to the docker hub repository"
+   echo -e "\t(6) Remove a Docker Image"
+   echo -e "\t(7) Push an Image to the docker hub repository"
    echo -e "\t(8) Return to main menu"
    echo -n "Enter your choice [0-8]: "
    read dchoice
    case $dchoice in
+
+
    0)
    docker login
    ;;
+
+
    1)
-   docker login
+   echo "Enter Image name: "
+   read image_name
+   export image_name
+   echo "Enter tag if specific: "
+   read pull_tag_name
+   export pull_tag_name
+   docker pull $image_name:$pull_tag_name
    ;;
-   2)
-   docker login
+
+
+   2) 
+      while :
+      do
+      echo "Which docker build you want...?"
+      echo -e "\t(0) Build from working directory "
+      echo -e "\t(1) Build from URL"
+      echo -e "\t(2) Return to main menu"
+      echo -n "Enter your choice [0-2]: "
+      read build_choice
+      export build_choice
+      case $build_choice in
+
+      0)
+      docker build .
+      ;;
+
+      1)
+      echo "Enter the URL without "https://""
+      read build_url
+      export build_url
+      docker build $build_url
+      ;;
+
+      2)
+      break
+      ;;      
+
+      *) echo "Invalid operation"
+      ;;
+      
+   esac
+   done
    ;;
+
    3)
-   docker login
+   echo "Enter image name you want to run: "
+   read run_image
+   export run_image
+   docker run -it -d $run_image
    ;;
    4)
    docker login
    ;;
    5)
-   docker login
+   echo "Enter Container ID to remove: "
+   read container_id
+   export container_id
+   docker rm $container_id
    ;;
    6)
-   docker login
+   echo "Enter Image ID to remove: "
+   read image_id
+   export image_id
+   docker rmi $image_id
    ;;
    7)
    docker login
+   echo "Enter Docker username: "
+   read docker_username
+   export docker_username
+   echo "Enter docker image name you want to push: "
+   read push_image_name
+   export push_image_name
+   docker push $docker_username/$push_image_name
    ;;
    8)
       break
