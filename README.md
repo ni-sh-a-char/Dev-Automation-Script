@@ -45,15 +45,15 @@ Enter your choice [0-7]:
 
 Which type of Docker operation you want to perform ?
 
-(0)Login to the Docker Hub Repository
-(1)Pull an Image from Docker Hub
-(2)Build an Image
-(3)Run a Docker Image
-(4)Access the running container
-(5)Remove a Docker Container
-(6)Remove a Docker Image
-(7)Push an Image to the docker hub repository
-(8)Return to main menu
+(0) Login to the Docker Hub Repository
+(1) Pull an Image from Docker Hub
+(2) Build an Image
+(3) Run a Docker Image
+(4) Access the running container
+(5) Remove a Docker Container
+(6) Remove a Docker Image
+(7) Push an Image to the docker hub repository
+(8) Return to main menu
 Enter your choice [0-8]:
 
 ```
