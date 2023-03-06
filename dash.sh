@@ -261,13 +261,16 @@ case $operation in
 
 
    1)
+   echo "Enter Username: "
+   read pull_username
+   export pull_username
    echo "Enter Image name: "
    read image_name
    export image_name
    echo "Enter tag if specific: "
    read pull_tag_name
    export pull_tag_name
-   docker pull $image_name:$pull_tag_name
+   docker pull $pull_username/$image_name:$pull_tag_name
    ;;
 
 
