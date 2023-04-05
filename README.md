@@ -1,5 +1,6 @@
 # Dev-Automation-Script
 
+A successor to Git-Automation-Script.
 A script for every developer build to automate work with Git and Docker.
 
 Script to automate Git and Docker from project working directory with a menu to choose from, you just have configure once and the script can be used for the following operations.
