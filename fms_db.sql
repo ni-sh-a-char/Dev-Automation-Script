@@ -3,7 +3,6 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 31, 2020 at 02:31 AM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -32,15 +31,19 @@ CREATE TABLE `users` (
   `id` int(11) NOT NULL,
   `username` varchar(100) NOT NULL,
   `email` varchar(100) NOT NULL,
-  `password` varchar(100) NOT NULL
+  `password` varchar(100) NOT NULL,
+  `GitHubUsername` varchar(100) NOT NULL,
+  `GitHubPassword` varchar(100) NOT NULL,
+  `DockerUsername` varchar(100) NOT NULL,
+  `DockerPassword` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `email`, `password`) VALUES
-(2, 'favouriyke', 'favouriykeefam@gmail.com', 'caaff28a393da06e33ba7119a0ab7500');
+INSERT INTO `users` (`id`, `username`, `email`, `password`, `GitHubUsername`, `GitHubPassword`, `DockerUsername`, `DockerPassword`) VALUES
+(2, 'favour', 'favour@gmail.com', 'caaff28a393da06e33ba7119a0ab7500', 'favour', 'favour', 'favour', 'favour');
 
 --
 -- Indexes for dumped tables
