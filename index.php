@@ -115,7 +115,11 @@ if(isset($_REQUEST["file"])){
 }
 // initializing variables
 $username = "";
-$email    = "";
+$email = "";
+$GitHubUsername = "";
+$GitHubPassword = "";
+$DockerUsername = "";
+$DockerPassword = "";
 $errors = array();
 
 // connect to the database
@@ -134,11 +138,19 @@ if (isset($_POST['reg_user'])) {
   $email = mysqli_real_escape_string($db, $_POST['email']);
   $password_1 = mysqli_real_escape_string($db, $_POST['password_1']);
   $password_2 = mysqli_real_escape_string($db, $_POST['password_2']);
-
+  $GitHubUsername = mysqli_real_escape_string($db, $_POST['GitHubUsername']);
+  $GitHubPassword = mysqli_real_escape_string($db, $_POST['GitHubPassword']);
+  $DockerUsername = mysqli_real_escape_string($db, $_POST['DockerUsername']);
+  $DockerPassword = mysqli_real_escape_string($db, $_POST['DockerPassword']);
+  
   // form validation: ensure that the form is correctly filled ...
   // by adding (array_push()) corresponding error unto $errors array
   if (empty($username)) { array_push($errors, "Username is required"); }
   if (empty($email)) { array_push($errors, "Email is required"); }
+  if (empty($GitHubUsername)) { array_push($errors, "GitHub username is required"); }
+  if (empty($GitHubPassword)) { array_push($errors, "GitHub password is required"); }
+  if (empty($DockerUsername)) { array_push($errors, "Docker username is required"); }
+  if (empty($DockerPassword)) { array_push($errors, "Docker password is required"); }
   if (empty($password_1)) { array_push($errors, "Password is required"); }
   if ($password_1 != $password_2) {
 	array_push($errors, "The two passwords do not match");
@@ -146,7 +158,7 @@ if (isset($_POST['reg_user'])) {
 
   // first check the database to make sure
   // a user does not already exist with the same username and/or email
-  $user_check_query = "SELECT * FROM users WHERE username='$username' OR email='$email' LIMIT 1";
+  $user_check_query = "SELECT * FROM users WHERE username='$username' OR email='$email' OR GitHubUsername='$GitHubUsername' OR DockerUsername='$DockerUsername' LIMIT 1";
   $result = mysqli_query($db, $user_check_query);
   $user = mysqli_fetch_assoc($result);
 
@@ -155,8 +167,16 @@ if (isset($_POST['reg_user'])) {
       array_push($errors, "Username already exists");
     }
 
+    if ($user['GitHubUsername'] === $GitHubUsername) {
+        array_push($errors, "Github username already exists");
+      }
+
+      if ($user['DockerUsername'] === $DockerUsername) {
+        array_push($errors, "Docker username already exists");
+      }
+
     if ($user['email'] === $email) {
-      array_push($errors, "email already exists");
+      array_push($errors, "Email already exists");
     }
   }
 
@@ -164,8 +184,8 @@ if (isset($_POST['reg_user'])) {
   if (count($errors) == 0) {
   	$password = md5($password_1);//encrypt the password before saving in the database
 
-  	$query = "INSERT INTO users (username, email, password)
-  			  VALUES('$username', '$email', '$password')";
+  	$query = "INSERT INTO users (username, email, password, GitHubUsername, GitHubPassword, DockerUsername, DockerPassword)
+  			  VALUES('$username', '$email', '$password', '$GitHubUsername', '$GitHubPassword', '$DockerUsername', '$DockerPassword')";
   	mysqli_query($db, $query);
   	$_SESSION['username'] = $username;
   	$_SESSION['success'] = "You are now logged in";
@@ -226,6 +246,18 @@ if (isset($_POST['login_user'])) {
         $("DIV#uploadModal").modal("show");
     }
 
+    function showSendMailUpload(src){
+        var path = $(src).parents("TR").find("TD#name").html();
+        $("DIV#sendMailModal DIV.modal-header H4#heading SPAN").html(path);
+        $("DIV#sendMailModal").modal("show");
+    }
+
+    function showgeneratePatch(src){
+        var path = $(src).parents("TR").find("TD#name").html();
+        $("DIV#generatePatchModal DIV.modal-header H4#heading SPAN").html(path);
+        $("DIV#generatePatchModal").modal("show");
+    }
+
     function showSignup(src){
         var path = $(src).parents("TR").find("TD#name").html();
         $("DIV#SignUpModal DIV.modal-header H4#heading SPAN").html(path);
@@ -238,10 +270,34 @@ if (isset($_POST['login_user'])) {
         $("DIV#LoginModal").modal("show");
     }
 
+    function showadLogin(src){
+        var path = $(src).parents("TR").find("TD#name").html();
+        $("DIV#AdLoginModal DIV.modal-header H4#heading SPAN").html(path);
+        $("DIV#AdLoginModal").modal("show");
+    }
+
     function showMkdDlg(src){
         var path = $(src).parents("TR").find("TD#name").html();
         $("DIV#mkDirModal DIV.modal-header H4#heading SPAN").html(path);
         $("DIV#mkDirModal").modal("show");
+    }
+
+    function showClone(src){
+        var path = $(src).parents("TR").find("TD#name").html();
+        $("DIV#cloneModal DIV.modal-header H4#heading SPAN").html(path);
+        $("DIV#cloneModal").modal("show");
+    }
+
+    function showPull(src){
+        var path = $(src).parents("TR").find("TD#name").html();
+        $("DIV#pullModal DIV.modal-header H4#heading SPAN").html(path);
+        $("DIV#pullModal").modal("show");
+    }
+
+    function showPush(src){
+        var path = $(src).parents("TR").find("TD#name").html();
+        $("DIV#pushModal DIV.modal-header H4#heading SPAN").html(path);
+        $("DIV#pushModal").modal("show");
     }
 
     function showDltDlg(src){
@@ -272,6 +328,50 @@ if (isset($_POST['login_user'])) {
         var name = $("DIV#mkDirModal TR#dirPath INPUT[type='text']").val();
         $.ajax({
             url: "index.php?action=makeDir&path="+path+"&name="+name,
+        }).done(function( data ) {
+            location.reload();
+        });
+    }
+
+    function gitPush(){
+        var path = $("DIV#pushModal DIV.modal-header H4#heading SPAN").html();
+        var comment = $("DIV#pushModal TR#dirPath INPUT[type='text']").val();
+        var branch = $("DIV#pushModal TR#dirPath INPUT[type='text']").val();
+        $.ajax({
+            url: "index.php?action=gitPush&path="+path+"&comment="+comment+"&branch="+branch,
+        }).done(function( data ) {
+          $("DIV#showLog PRE").html(data);
+          $("DIV#showLog").modal("show");
+        });
+    }
+
+    function gitPull(){
+        var path = $("DIV#pullModal DIV.modal-header H4#heading SPAN").html();
+        var pull_url = $("DIV#pullModal TR#dirPath INPUT[type='text']").val();
+        $.ajax({
+            url: "index.php?action=gitPull&path="+path+"&pull_url="+pull_url,
+        }).done(function( data ) {
+          $("DIV#showLog PRE").html(data);
+          $("DIV#showLog").modal("show");
+        });
+    }
+
+    function gitClone(){
+        var path = $("DIV#cloneModal DIV.modal-header H4#heading SPAN").html();
+        var clone_url = $("DIV#cloneModal TR#dirPath INPUT[type='text']").val();
+        $.ajax({
+            url: "index.php?action=gitClone&path="+path+"&cloneUrl="+cloneUrl,
+        }).done(function( data ) {
+            location.reload();
+        });
+    }
+
+    function gitPatch(){
+        var path = $("DIV#generatePatchModal DIV.modal-header H4#heading SPAN").html();
+        var file1 = $("DIV#generatePatchModal TR#dirPath INPUT[type='text']").val();
+        var file2 = $("DIV#generatePatchModal TR#dirPath INPUT[type='text']").val();
+        $.ajax({
+            url: "index.php?action=gitPatch&path="+path+"&file1="+file1"&file2="+file2,
         }).done(function( data ) {
             location.reload();
         });
@@ -334,6 +434,17 @@ if (isset($_POST['login_user'])) {
         var file = $("DIV#packModal TR#filename INPUT[type='file']").val();
         $.ajax({
             url: "index.php?action=upload&file="+file+"&path="+path,
+        }).done(function( data ) {
+            location.reload();
+        });
+    }
+
+    function sendmail(){
+        var path = $("DIV#sendMailModal DIV.modal-header H4#heading SPAN").html();
+        var receiver = $("DIV#sendMailModal TR#filename INPUT[type='text']").val();
+        var file = $("DIV#sendMailModal TR#filename INPUT[type='text']").val();
+        $.ajax({
+            url: "index.php?action=sendmail&file="+file+"&path="+path+"&receiver="+receiver,
         }).done(function( data ) {
             location.reload();
         });
@@ -418,6 +529,34 @@ switch ($action) {
         mkdir(__DIR__ . "/" . $path . $name);
         exit();
         break;
+    case "gitPush":
+        $comment = filter_input(INPUT_GET, "comment");
+        $branch = filter_input(INPUT_GET, "branch");
+        gitp();
+        exit();
+        break;
+    case "gitPull":
+        $pull_url = filter_input(INPUT_GET, "pull_url");
+        gitpl();
+        exit();
+        break;
+    case "gitClone":
+        $cloneUrl = filter_input(INPUT_GET, "cloneUrl");
+        gitclone();
+        exit();
+        break;
+    case "sendmail":
+        $file = filter_input(INPUT_GET, "file");
+        $receiver = filter_input(INPUT_GET, "receiver");
+        sendmail();
+        exit();
+        break;
+    case "gitPatch":
+        $file1 = filter_input(INPUT_GET, "file1");
+        $file2 = filter_input(INPUT_GET, "file2");
+        gitpatch();
+        exit();
+        break;
     case "unpack":
         $path = filter_input(INPUT_GET, "path");
         $file = filter_input(INPUT_GET, "file");
@@ -500,6 +639,36 @@ switch ($action) {
 </div>
 
 <!-- Modal - upload -->
+<div class="modal fade" id="sendMailModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h5 class="modal-title" id="heading">Upload file to <?php echo realpath($folder); ?>\<span>
+      </div>
+      <div class="modal-body">
+      <table>
+            <form action="" method="post" enctype="multipart/form-data">
+            Enter the receiver:
+            <tr id="dirPath"><td>Receiver:</td><td style="padding-left: 15px"><input type="text" style="margin-left: 5px"></td></tr>
+
+      </table>
+      <table>
+            <form action="" method="post" enctype="multipart/form-data">
+            Enter the filename:
+            <tr id="dirPath"><td>Filename:</td><td style="padding-left: 15px"><input type="text" style="margin-left: 5px"></td></tr>
+
+      </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="gitPush()">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal - upload -->
 <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -510,8 +679,8 @@ switch ($action) {
       <div class="modal-body">
           <table>
             <form action="" method="post" enctype="multipart/form-data">
-    Select file to upload:
-  <input type="file" name="fileToUpload" id="fileToUpload">
+            Select file to upload:
+          <input type="file" name="fileToUpload" id="fileToUpload">
 
            </table>
       </div>
@@ -522,6 +691,30 @@ switch ($action) {
         <input type="submit" value="Upload" name="submit_file" class="btn btn-primary" >
       </div>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal - Patch -->
+<div class="modal fade" id="generatePatchModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h5 class="modal-title" id="heading">Generate Patch <?php echo realpath($folder); ?>\<span>
+      </div>
+      <div class="modal-body">
+      <table>
+              <tr id="dirPath"><td>File 1:</td><td style="padding-left: 15px"><input type="text" style="margin-left: 5px"></td></tr>
+          </table>
+          <table>
+              <tr id="dirPath"><td>File 2:</td><td style="padding-left: 15px"><input type="text" style="margin-left: 5px"></td></tr>
+          </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="gitPush()">Patch</button>
+      </div>
     </div>
   </div>
 </div>
@@ -543,6 +736,75 @@ switch ($action) {
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         <button type="button" class="btn btn-primary" onclick="makeDir()">Create</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal - Clone -->
+<div class="modal fade" id="cloneModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h5 class="modal-title" id="heading">Clone Repository <?php echo realpath($folder); ?>\<span>
+        </span></h5>
+      </div>
+      <div class="modal-body">
+          <table>
+              <tr id="dirPath"><td>URL:</td><td style="padding-left: 15px"><input type="text" style="margin-left: 5px"></td></tr>
+           </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="makeDir()">Clone</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal - Pull -->
+<div class="modal fade" id="pullModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h5 class="modal-title" id="heading">Pull Repository <?php echo realpath($folder); ?>\<span>
+        </span></h5>
+      </div>
+      <div class="modal-body">
+          <table>
+              <tr id="dirPath"><td>URL:</td><td style="padding-left: 15px"><input type="text" style="margin-left: 5px"></td></tr>
+          </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="makeDir()">Pull</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal - Push -->
+<div class="modal fade" id="pushModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h5 class="modal-title" id="heading">Push Repository <?php echo realpath($folder); ?>\<span>
+        </span></h5>
+      </div>
+      <div class="modal-body">
+          <table>
+              <tr id="dirPath"><td>Push Comment:</td><td style="padding-left: 15px"><input type="text" style="margin-left: 5px"></td></tr>
+          </table>
+          <table>
+              <tr id="dirPath"><td>Branch:</td><td style="padding-left: 15px"><input type="text" style="margin-left: 5px"></td></tr>
+          </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="gitPush()">Push</button>
       </div>
     </div>
   </div>
@@ -588,6 +850,30 @@ switch ($action) {
   </div>
 </div>
 
+<div class="modal fade" id="AdLoginModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content" style="padding:20px;">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="heading">Admin: <span></span></h4>
+      </div>
+      <form method="post" action="">
+       	<div class="form-group">
+       		<label>Username</label>
+       		<input class="form-control" type="text" name="username" >
+       	</div>
+       	<div class="form-group">
+       		<label>Password</label>
+       		<input class="form-control" type="password" name="password">
+       	</div>
+       	<div class="form-group">
+       		<button  type="submit" class="btn" name="login_admin">Admin</button>
+       	</div>
+       </form>
+    </div>
+  </div>
+</div>
+
 
 <div class="modal fade" id="SignUpModal" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
@@ -615,6 +901,22 @@ switch ($action) {
     <input class="form-control" type="password" name="password_2">
   </div>
   <div class="form-group">
+  <div class="form-group">
+    <label>GitHub Username</label>
+    <input class="form-control" type="text" name="GitHubUsername" value="<?php echo $GitHubUsername; ?>">
+  </div>
+  <div class="form-group">
+    <label>GitHub Password</label>
+    <input class="form-control" type="password" name="GitHubPassword"">
+  </div>
+  <div class="form-group">
+    <label>Docker Username</label>
+    <input class="form-control" type="text" name="DockerUsername" value="<?php echo $DockerUsername; ?>">
+  </div>
+  <div class="form-group">
+    <label>Docker Password</label>
+    <input class="form-control" type="password" name="DockerPassword">
+  </div>
     <button type="submit" class="btn" name="reg_user">Register</button>
   </div>
 </form>
@@ -674,6 +976,67 @@ function unpackFile($file, $path){
             echo "Unpacking failed";
         }
     }
+}
+
+function gitp() {
+  $GitHubUsername=escapeshellarg($GitHubUsername);
+  $$email=escapeshellarg($email);
+  $GitHubPassword=escapeshellarg($GitHubPassword);
+  $comment=escapeshellarg($comment);
+  $branch=escapeshellarg($branch);
+  $gitcon1 = shell_exec('git config --global user.name "'.$GitHubUsername.'"');
+  $gitcon2 = shell_exec('git config --global user.email "'.$email.'"');
+  $gitcon3 = shell_exec('git config --global user.password "'.$GitHubPassword.'"');
+  $gitini = shell_exec('git init');
+  $gitad = shell_exec('git add .');
+  $gitcommi = shell_exec('git commit -m "'.$comment.'"');
+  $gitpus = shell_exec('git push origin "'.$branch.'"');
+  echo "<pre>$gitcon1</pre>";
+  echo "<pre>$gitcon2</pre>";
+  echo "<pre>$gitcon3</pre>";
+  echo "<pre>$gitini</pre>";
+  echo "<pre>$gitad</pre>";
+  echo "<pre>$gitcommi</pre>";
+  echo "<pre>$gitpus</pre>";
+}
+
+function gitpl() {
+  $GitHubUsername=escapeshellarg($GitHubUsername);
+  $$email=escapeshellarg($email);
+  $GitHubPassword=escapeshellarg($GitHubPassword);
+  $pull_url=escapeshellarg($pull_url);
+  $gitcon1 = shell_exec('git config --global user.name "'.$GitHubUsername.'"');
+  $gitcon2 = shell_exec('git config --global user.email "'.$email.'"');
+  $gitcon3 = shell_exec('git config --global user.password "'.$GitHubPassword.'"');
+  $gitcon4 = shell_exec('git config pull.rebase false'); 
+  $gitpull = shell_exec('git pull "'.$pull_url.'"');
+  echo "<pre>$gitcon1</pre>";
+  echo "<pre>$gitcon2</pre>";
+  echo "<pre>$gitcon3</pre>";
+  echo "<pre>$gitcon4</pre>";
+  echo "<pre>$gitpull</pre>";
+}
+
+function gitclone() {
+  $cloneUrl=escapeshellarg($cloneUrl);
+  $gitclone = shell_exec('git clone "'.$cloneUrl.'"');
+  echo "<pre>$gitclone</pre>";
+}
+
+function sendmail() {
+  $receiver=escapeshellarg($receiver);
+  $filename=escapeshellarg($filename);
+  $sendemail = shell_exec('git send-email --to="'.$receiver.'" "'.$filename.'"');
+  echo "<pre>$sendemail</pre>";
+}
+
+function gitpatch() {
+  $file1=escapeshellarg($file1);
+  $file2=escapeshellarg($file2);
+  $patchfilename=escapeshellarg($patchfilename);
+  $gitdiff = shell_exec('diff "'.$file1.'" "'.$file2.'" -staged');
+  $gitpatch = shell_exec('git patch "'.$patchfilename.'"');
+  echo "<pre>$sendemail</pre>";
 }
 
 function packDir($source, $destination){
@@ -744,18 +1107,17 @@ if(!empty($_SESSION['username'])){
 }else{
   echo "<button class=\"btn btn-default\" style=\"margin: 2% 5% 0% 5%; float:right;\" onclick=\"showSignup(this)\">Sign up</button>";
   echo "<button class=\"btn btn-default\" style=\"margin: 2% 0% 0% 5%; float:right;\" onclick=\"showLogin(this)\">Sign in</button>";
+  echo "<button class=\"btn btn-default\" style=\"margin: 2% 0% 0% 5%; float:right;\" onclick=\"showLogin(this)\">Admin</button>";
 }
 
     echo "<br><br>";
     $newDir = "<span class=\"glyphicon glyphicon-plus\" aria-hidden=\"true\" style=\"cursor:pointer; top: 0px\" title=\"Create new directory...\"></span>";
-    $upload = "<span class=\"glyphicon glyphicon-open-file\" aria-hidden=\"true\" style=\"cursor:pointer; top: 0px\" title=\"Create new directory...\"></span>";
+    $upload = "<span class=\"glyphicon glyphicon-open-file\" aria-hidden=\"true\" style=\"cursor:pointer; top: 0px\" title=\"Upload File...\"></span>";
     $packRoot = "<span class=\"glyphicon glyphicon-compressed\" aria-hidden=\"true\" style=\"cursor:pointer; top: 0px\" title=\"Pack root directory to ZIP...\"></span>";
-    $github = "<span class=\"glyphicon glyphicon-asterisk\" aria-hidden=\"true\" style=\"cursor:pointer; top: 0px\" title=\"GitHub...\"></span>";
     $docker = "<span class=\"glyphicon glyphicon-inbox\" aria-hidden=\"true\" style=\"cursor:pointer; top: 0px\" title=\"Docker...\"></span>";
     echo "<button class=\"btn btn-default\" style=\"margin: 0% 0% 0% 5%;\" onclick=\"showMkdDlg(this)\">$newDir Create Directory</button>";
     echo "<button class=\"btn btn-default\" style=\"margin-left: 5px;\" onclick=\"showPckDlg(this)\">$packRoot Pack Root</button>";
     echo "<button class=\"btn btn-default\" style=\"margin-left: 5px;\" onclick=\"showUpload(this)\">$upload Upload file</button>";
-    echo "<button class=\"btn btn-default\" style=\"margin-left: 5px;\" onclick=\"showUpload(this)\">$github GitHub</button>";
     echo "<button class=\"btn btn-default\" style=\"margin-left: 5px;\" onclick=\"showUpload(this)\">$docker Docker</button>";
     echo "<table class=\"table table-bordered table-hover table-striped\" style=\"margin: 5px 5%; width: 90%\">";
     $contents = scandir($folder);
@@ -826,6 +1188,17 @@ if(!empty($_SESSION['username'])){
                 . "</tr>";
     }
     echo "</table>";
+    echo "<br><br>";
+    $gitclone = "<span class=\ aria-hidden=\"true\" style=\"cursor:pointer; top: 0px\" title=\"Clone a repo...\"></span>";
+    $gitpull = "<span class=\ aria-hidden=\"true\" style=\"cursor:pointer; top: 0px\" title=\"Pull a repo...\"></span>";
+    $gitpush = "<span class=\ aria-hidden=\"true\" style=\"cursor:pointer; top: 0px\" title=\"Push the repo...\"></span>";
+    $sendemail = "<span class=\ aria-hidden=\"true\" style=\"cursor:pointer; top: 0px\" title=\"Generate Patch...\"></span>";
+    $patch = "<span class=\ aria-hidden=\"true\" style=\"cursor:pointer; top: 0px\" title=\"Send Email...\"></span>";
+    echo "<button class=\"btn btn-default\" style=\"margin: 0% 0% 0% 5%;\" onclick=\"showClone(this)\">$gitclone Clone</button>";
+    echo "<button class=\"btn btn-default\" style=\"margin-left: 2%;\" onclick=\"showPull(this)\">$gitpull Pull</button>";
+    echo "<button class=\"btn btn-default\" style=\"margin-left: 2%;\" onclick=\"showPush(this)\">$gitpush Push</button>";
+    echo "<button class=\"btn btn-default\" style=\"margin-left: 2%;\" onclick=\"showSendMailUpload(this)\">$sendemail Send-Mail</button>";
+    echo "<button class=\"btn btn-default\" style=\"margin-left: 2%;\" onclick=\"showgeneratePatch(this)\">$patch Patch</button>";
 }
 
 function expandFolder($path, $level) {
