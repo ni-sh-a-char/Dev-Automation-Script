@@ -117,35 +117,98 @@ def main():
                     
         elif choice == "Pull from GitHub":
             st.subheader("Pull from GitHub")
-
             root = tk.Tk()
             root.withdraw()
         # Make folder picker dialog appear on top of other windows
             root.wm_attributes('-topmost', 1)
         # Folder picker button
-            pull_select = st.button("Select Destination to pull")
-            if pull_select:
-                dirname = st.text_input('Selected folder:', filedialog.askdirectory(master=root))
-                os.chdir(dirname)
-                process = subprocess.Popen (['git', 'pull'],shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-                result = process.communicate( )
-                st.write(result)
-                @contextmanager
-                def st_capture(output_func):
-                    with StringIO() as stdout, redirect_stdout(stdout):
-                        old_write = stdout.write
 
-                        def new_write(string):
-                            ret = old_write(string)
-                            output_func(stdout.getvalue())
-                            return ret
+            pull_url = st.text_input("Enter the Pull URL you want to fetch")
+            menu = ["Merge (the default strategy)","Rebase", "Fast-forward only"]
+            choice = st.selectbox("Select Activity", menu)
+            if choice == "Merge (the default strategy)":
+                pull_select = st.button("Select Destination to pull")
+                if pull_select:
+                    dirname = st.text_input('Selected folder:', filedialog.askdirectory(master=root))
+                    os.chdir(dirname)
+                    process = subprocess.Popen (['git', 'config', 'pull.rebase', 'false'],shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                    result = process.communicate( )
+                    st.write(result)
+                    process = subprocess.Popen (['git', 'pull', pull_url],shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                    result = process.communicate( )
+                    st.write(result)
+                    @contextmanager
+                    def st_capture(output_func):
+                        with StringIO() as stdout, redirect_stdout(stdout):
+                            old_write = stdout.write
+
+                            def new_write(string):
+                                ret = old_write(string)
+                                output_func(stdout.getvalue())
+                                return ret
                     
-                        stdout.write = new_write
-                        yield
+                            stdout.write = new_write
+                            yield
 
-                output = st.empty()
-                with st_capture(output.code):
-                    print(sd.seedir(dirname, style='emoji'))
+                    output = st.empty()
+                    with st_capture(output.code):
+                        print(sd.seedir(dirname, style='emoji'))
+
+            elif choice == "Rebase":
+                pull_select = st.button("Select Destination to pull")
+                if pull_select:
+                    dirname = st.text_input('Selected folder:', filedialog.askdirectory(master=root))
+                    os.chdir(dirname)
+                    process = subprocess.Popen (['git', 'config', 'pull.rebase', 'true'],shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                    result = process.communicate( )
+                    st.write(result)
+                    process = subprocess.Popen (['git', 'pull', pull_url],shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                    result = process.communicate( )
+                    st.write(result)
+                    @contextmanager
+                    def st_capture(output_func):
+                        with StringIO() as stdout, redirect_stdout(stdout):
+                            old_write = stdout.write
+
+                            def new_write(string):
+                                ret = old_write(string)
+                                output_func(stdout.getvalue())
+                                return ret
+                    
+                            stdout.write = new_write
+                            yield
+
+                    output = st.empty()
+                    with st_capture(output.code):
+                        print(sd.seedir(dirname, style='emoji'))
+
+            elif choice == "Fast-forward only":
+                pull_select = st.button("Select Destination to pull")
+                if pull_select:
+                    dirname = st.text_input('Selected folder:', filedialog.askdirectory(master=root))
+                    os.chdir(dirname)
+                    process = subprocess.Popen (['git', 'config', 'pull.ff', 'only'],shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                    result = process.communicate( )
+                    st.write(result)
+                    process = subprocess.Popen (['git', 'pull', pull_url],shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                    result = process.communicate( )
+                    st.write(result)
+                    @contextmanager
+                    def st_capture(output_func):
+                        with StringIO() as stdout, redirect_stdout(stdout):
+                            old_write = stdout.write
+
+                            def new_write(string):
+                                ret = old_write(string)
+                                output_func(stdout.getvalue())
+                                return ret
+                    
+                            stdout.write = new_write
+                            yield
+
+                    output = st.empty()
+                    with st_capture(output.code):
+                        print(sd.seedir(dirname, style='emoji'))
                 
 
         elif choice == "Push to GitHub":
@@ -193,43 +256,15 @@ def main():
 
     elif choice == "Send-Mail":
         st.subheader("Send-Mail")
-        receiver = st.text_input('Enter the receiver mail address')
-        filename = st.text_input('Enter First file name')
-        clicked = st.button('Send')
-        if clicked:
-            process = subprocess.Popen (['git', 'send-email', '--to=', receiver, filename ],shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            result = process.communicate( )
-            st.write(result)
-        
-    elif choice == "Generate Patch":
-        st.subheader("Generate Patch")
-
-        filename1 = st.text_input('Enter First file name')
-        filename2 = st.text_input('Enter Second file name')
-        click1 = st.button('Get Diff')
-        if click1:
-            process = subprocess.Popen (['diff', filename1, filename2, '-staged'],shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            result = process.communicate( )
-            st.write(result)
-
-        filename3 = st.text_input('Enter File name you want to generate patch for')
-        click2 = st.button('Generate Patch')
-        if click2:
-            process = subprocess.Popen (['git', 'patch', filename3],shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            result = process.communicate( )
-            st.write(result)
-
-                # Set up tkinter
-        root = tk.Tk()
-        root.withdraw()
-
-        # Make folder picker dialog appear on top of other windows
-        root.wm_attributes('-topmost', 1)
-
-        # Folder picker button
-        clicked = st.button('View')
-        if clicked:
-            dirname = os.getcwd()
+        select = st.button("Choose Directory")
+        if select:
+            root = tk.Tk()
+            root.withdraw()
+            # Make folder picker dialog appear on top of other windows
+            root.wm_attributes('-topmost', 1)
+            # Folder picker button
+            dirname = st.text_input('Selected folder:', filedialog.askdirectory(master=root))
+            # dirname = os.getcwd()
             @contextmanager
             def st_capture(output_func):
                 with StringIO() as stdout, redirect_stdout(stdout):
@@ -247,6 +282,56 @@ def main():
             output = st.empty()
             with st_capture(output.code):
                 print(sd.seedir(dirname, style='emoji'))
+        receiver = st.text_input('Enter the receiver mail address')
+        filename = st.text_input('Enter First file name')
+        send = st.button('Send')
+        if send:
+            process = subprocess.Popen (['git', 'send-email', '--to=', receiver, filename ],shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            result = process.communicate( )
+            st.write(result)
+        
+    elif choice == "Generate Patch":
+        st.subheader("Generate Patch")
+        select = st.button("Select Destination")
+        if select:
+            # Set up tkinter
+            root = tk.Tk()
+            root.withdraw()
+            # Make folder picker dialog appear on top of other windows
+            root.wm_attributes('-topmost', 1)
+            # Folder picker button
+            dirname = st.text_input('Selected folder:', filedialog.askdirectory(master=root))
+            @contextmanager
+            def st_capture(output_func):
+                with StringIO() as stdout, redirect_stdout(stdout):
+                    old_write = stdout.write
+
+                    def new_write(string):
+                        ret = old_write(string)
+                        output_func(stdout.getvalue())
+                        return ret
+                    
+                    stdout.write = new_write
+                    yield
+
+
+            output = st.empty()
+            with st_capture(output.code):
+                print(sd.seedir(dirname, style='emoji'))
+        filename1 = st.text_input('Enter First file name')
+        filename2 = st.text_input('Enter Second file name')
+        click1 = st.button('Get Diff')
+        if click1:
+            process = subprocess.Popen (['diff', filename1, filename2, '-staged'],shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            result = process.communicate( )
+            st.write(result)
+
+        filename3 = st.text_input('Enter File name you want to generate patch for')
+        click2 = st.button('Generate Patch')
+        if click2:
+            process = subprocess.Popen (['git', 'patch', filename3],shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            result = process.communicate( )
+            st.write(result)
 
     elif choice == "Docker":
         st.subheader("Docker")
