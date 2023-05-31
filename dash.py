@@ -264,7 +264,6 @@ def main():
             root.wm_attributes('-topmost', 1)
             # Folder picker button
             dirname = st.text_input('Selected folder:', filedialog.askdirectory(master=root))
-            # dirname = os.getcwd()
             @contextmanager
             def st_capture(output_func):
                 with StringIO() as stdout, redirect_stdout(stdout):
@@ -344,7 +343,7 @@ def main():
         # Folder picker button
         clicked = st.button("View Files")
         if clicked:
-            dirname = os.getcwd()
+            dirname = st.text_input('Selected folder:', filedialog.askdirectory(master=root))
             @contextmanager
             def st_capture(output_func):
                 with StringIO() as stdout, redirect_stdout(stdout):
