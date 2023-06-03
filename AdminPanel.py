@@ -67,15 +67,6 @@ def view_all_user_activity():
 	data = c.fetchall()
 	return data
 
-def get_task(task):
-	c.execute('SELECT * FROM taskstable WHERE task="{}"'.format(task))
-	data = c.fetchall()
-	return data
-
-def get_task_by_status(task_status):
-	c.execute('SELECT * FROM taskstable WHERE task_status="{}"'.format(task_status))
-	data = c.fetchall()
-
 def delete_data(username):
 	c.execute('DELETE FROM usertable WHERE username="{}"'.format(username))
 	conn.commit()
