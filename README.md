@@ -29,3 +29,5 @@ streamlit run Admin_And_Login.py
 ```
 streamlit run dash.py
 ```
+# Link to the Docker image
+[dev-automation-script](https://hub.docker.com/r/piyushmishradocker/dev-automation-script)
