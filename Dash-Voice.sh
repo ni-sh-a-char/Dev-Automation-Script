@@ -1,5 +1,8 @@
 #!/bin/bash
 
+### Dev Automation Script for automating git and docker ###
+### Created by PIYUSH-MISHRA-00 ###
+
 # Install SoX and CMU Sphinx
 sudo apt-get install sox
 sudo apt-get install pocketsphinx
