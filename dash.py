@@ -82,8 +82,8 @@ def make_hashes(password):
     kaalka = Kaalka()
     return kaalka.encrypt(password)
 
-def check_hashes(password, hashed_text):
-    if make_hashes(password) == kaalka.decrypt(hashed_text):
+def check_hashes(password, encrypted_text):
+    if make_hashes(password) == kaalka.decrypt(encrypted_text):
         return True
     return False
 
