@@ -18,7 +18,6 @@ import openai
 import streamlit.components.v1 as stc
 import sqlite3
 import kaalka
-import kaalka
 import kaalkaNTP
 
 conn = sqlite3.connect('data.db', check_same_thread=False)
