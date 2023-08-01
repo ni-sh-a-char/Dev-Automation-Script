@@ -17,7 +17,9 @@ import subprocess
 import openai
 import streamlit.components.v1 as stc
 import sqlite3
-import hashlib
+import kaalka
+import kaalka
+import kaalkaNTP
 
 conn = sqlite3.connect('data.db', check_same_thread=False)
 c = conn.cursor()
@@ -77,10 +79,11 @@ def delete_data(username):
     conn.commit()
 
 def make_hashes(password):
-    return hashlib.sha256(str.encode(password)).hexdigest()
+    kaalka = Kaalka()
+    return kaalka.encrypt(password)
 
 def check_hashes(password, hashed_text):
-    if make_hashes(password) == hashed_text:
+    if make_hashes(password) == kaalka.decrypt(hashed_text):
         return True
     return False
 
